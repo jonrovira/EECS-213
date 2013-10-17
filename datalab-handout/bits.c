@@ -193,6 +193,8 @@ int bang(int x) {
  *   Rating: 4
  */
 int bitParity(int x) {
+  /*You got this, Curtis*/
+
   int ones = 0xFF;
 
   int first = ones & (x >> 24);
