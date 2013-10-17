@@ -193,7 +193,29 @@ int bang(int x) {
  *   Rating: 4
  */
 int bitParity(int x) {
-  return 2;
+  int ones = 0xFF;
+
+  int first = ones & (x >> 24);
+  int second = ones & (x >> 16);
+  int thirdByte = ones & (x >> 8);
+  //int fourthByte = ones & x;
+
+  int evenOdd = first ^ second ^ thirdByte ^ x;  
+  
+  first = 0xF & (evenOdd >> 4);
+
+  evenOdd = first ^ evenOdd;
+
+  first = 0x3 & (evenOdd >> 2);
+
+  evenOdd = first ^ evenOdd;
+
+  first = 0x1 & (evenOdd >> 1);
+  second = 0x1 & evenOdd;
+
+  evenOdd = first ^ second;
+
+  return evenOdd;
 }
 
 
