@@ -304,7 +304,7 @@ int conditional(int x, int y, int z) {
   return result;
 }
 
-
+ 
 /* 
  * divpwr2 - Compute x/(2^n), for 0 <= n <= 30
  *  Round toward zero
@@ -390,19 +390,14 @@ unsigned float_abs(unsigned uf) {
  */
 unsigned float_i2f(int x) {
   unsigned sign = x & 0x80000000;
-  unsigned allExceptFirst = 0x80000000;
-
+  if(x == 0x80000000) 
+    return 0xcf000000;
   if(!!sign) {
-    
-    if ((x & allExceptFirst) == allExceptFirst) {
-      return 0xcf000000;
-    }
-    
     x = ~x + 1;
-  }
+   }
   unsigned checker = 0x40000000;
   int magnitude = 31;
-  int spot = 0;
+  unsigned spot = 0;
 
   //Zero case
   if((x ^ 0x0) == 0x0) return 0x0;
@@ -413,7 +408,7 @@ unsigned float_i2f(int x) {
       spot = magnitude;
     }
     checker = checker >> 1;
-    magnitude = magnitude + (0x11111111);
+    magnitude = magnitude + (0xFFFFFFFF);
   }
 
   // Shifts x left until the most significant 1 is on the left
@@ -425,18 +420,25 @@ unsigned float_i2f(int x) {
 
   // Basic case to check if round up is even possibility
   unsigned twentyFifthBit = leftShifted & 0x00000080;
-  if(twentyFifthBit == 0x1) {
+  unsigned addOne = 0;
+  if(twentyFifthBit == 0x80) {
     unsigned lastSeven = leftShifted & 0x0000007f;
     unsigned anyOnes = !lastSeven;
+    
+    
+
     // Round up
     if(!anyOnes) {
-      twentyThreeBits = twentyThreeBits + 0x00000100;
+      addOne = 1;
+      // twentyThreeBits = ((twentyThreeBits >> 8) + 1) & 0x007FFFFF;
+      //twentyThreeBits = twentyThreeBits + 0x00000100;
     }
     else {
       unsigned twentyFourthBit = twentyThreeBits & 0x00000100;
       // Round up
       if(!!twentyFourthBit) {
-        twentyThreeBits = twentyThreeBits + 0x00000100;
+	//twentyThreeBits = ((twentyThreeBits >> 8) + 1) & 0x007FFFFF;
+        addOne = 1;
       }
     }
   }
@@ -444,10 +446,14 @@ unsigned float_i2f(int x) {
   twentyThreeBits = twentyThreeBits >> 8;
 
   // Exponent
-  unsigned exponent = (spot + 0x11111111) + 127;
+  unsigned exponent = (spot + 0xFFFFFFFF) + 127;
   exponent = exponent << 23;
 
-  return twentyThreeBits + sign + exponent;
+  //twentyThreeBits = twentyThreeBits & 0x007FFFFF;
+  unsigned result =  twentyThreeBits + sign + exponent;
+  if(addOne)
+    result = result + 1;
+  return result;
 
 
 }
