@@ -371,7 +371,13 @@ int evenBits(void) {
  *   Rating: 2
  */
 unsigned float_abs(unsigned uf) {
-  return 2;
+  unsigned exponent = 0x7f800000;
+  unsigned frac = 0x007fffff;
+  if (((uf & exponent) == exponent) && ((uf & frac) != 0x0)){
+    return uf;
+  }
+  return uf & 0x7fffffff;
+
 }
 /* 
  * float_i2f - Return bit-level equivalent of expression (float) x
@@ -383,7 +389,67 @@ unsigned float_abs(unsigned uf) {
  *   Rating: 4
  */
 unsigned float_i2f(int x) {
-  return 2;
+  unsigned sign = x & 0x80000000;
+  unsigned allExceptFirst = 0x80000000;
+
+  if(!!sign) {
+    
+    if ((x & allExceptFirst) == allExceptFirst) {
+      return 0xcf000000;
+    }
+    
+    x = ~x + 1;
+  }
+  unsigned checker = 0x40000000;
+  int magnitude = 31;
+  int spot = 0;
+
+  //Zero case
+  if((x ^ 0x0) == 0x0) return 0x0;
+
+  //Finds number by which to shift left
+  while((checker != 0x0) && (spot == 0)) {
+    if((checker & x) == checker) {
+      spot = magnitude;
+    }
+    checker = checker >> 1;
+    magnitude = magnitude + (0x11111111);
+  }
+
+  // Shifts x left until the most significant 1 is on the left
+  int leftShift = 32 + (~spot + 1);
+  unsigned leftShifted = x << leftShift;
+
+  // Twenty-one on far left, zeros on right
+  unsigned twentyThreeBits = leftShifted & 0x7fffff00;
+
+  // Basic case to check if round up is even possibility
+  unsigned twentyFifthBit = leftShifted & 0x00000080;
+  if(twentyFifthBit == 0x1) {
+    unsigned lastSeven = leftShifted & 0x0000007f;
+    unsigned anyOnes = !lastSeven;
+    // Round up
+    if(!anyOnes) {
+      twentyThreeBits = twentyThreeBits + 0x00000100;
+    }
+    else {
+      unsigned twentyFourthBit = twentyThreeBits & 0x00000100;
+      // Round up
+      if(!!twentyFourthBit) {
+        twentyThreeBits = twentyThreeBits + 0x00000100;
+      }
+    }
+  }
+  // Fraction
+  twentyThreeBits = twentyThreeBits >> 8;
+
+  // Exponent
+  unsigned exponent = (spot + 0x11111111) + 127;
+  exponent = exponent << 23;
+
+  return twentyThreeBits + sign + exponent;
+
+
 }
 /* 
  * isPositive - return 1 if x > 0, return 0 otherwise 
