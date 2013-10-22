@@ -1,7 +1,8 @@
 /* 
  * CS:APP Data Lab 
  * 
- * <Please put your name and userid here>
+ * Curtis Wiese (cjw279)
+ * Jon Rovira (jmr566)
  * 
  * bits.c - Source file with your solutions to the Lab.
  *          This is the file you will hand in to your instructor.
@@ -258,28 +259,27 @@ int byteSwap(int x, int n, int m) {
   int result;
   int FF = 0xFF;
 
-  int mShifted = m << 3; //1
-  int nShifted = n << 3; //1
+  int mShifted = m << 3;
+  int nShifted = n << 3; 
 
-  int byteM = FF << mShifted; //1
-  int byteN = FF << nShifted; //1
-  int switchedBytes = byteM ^ byteN; //1
-  int notSwitchedBytes = ~switchedBytes; //1
+  int byteM = FF << mShifted; 
+  int byteN = FF << nShifted; 
+  int switchedBytes = byteM ^ byteN; 
+  int notSwitchedBytes = ~switchedBytes; 
 
-  byteM = byteM & x; //1
-  byteN = byteN & x; //1
+  byteM = byteM & x; 
+  byteN = byteN & x; 
 
-  byteM = byteM >> mShifted; //1
-  byteN = byteN >> nShifted; //1
+  byteM = byteM >> mShifted;
+  byteN = byteN >> nShifted; 
 
-  byteM = byteM & FF; //1
-  byteN = byteN & FF; //1
-  byteM = byteM << nShifted; //1
-  byteN = byteN << mShifted; //1
+  byteM = byteM & FF; 
+  byteN = byteN & FF; 
+  byteM = byteM << nShifted; 
+  byteN = byteN << mShifted; 
 
-  notSwitchedBytes = notSwitchedBytes & x; //1
-
-  result = notSwitchedBytes + (byteM ^ byteN); //2
+  notSwitchedBytes = notSwitchedBytes & x; 
+  result = notSwitchedBytes + (byteM ^ byteN); 
   return result;
   
   return 2;
@@ -348,6 +348,8 @@ int divpwr2(int x, int n) {
 
   return result;
 }
+
+
 /* 
  * evenBits - return word with all even-numbered bits set to 1
  *   Legal ops: ! ~ & ^ | + << >>
@@ -367,6 +369,8 @@ int evenBits(void) {
  
   return result;
 }
+
+
 /* 
  * float_abs - Return bit-level equivalent of absolute value of f for
  *   floating point argument f.
@@ -395,6 +399,8 @@ unsigned float_abs(unsigned uf) {
   return uf & 0x7fffffff;
 
 }
+
+
 /* 
  * float_i2f - Return bit-level equivalent of expression (float) x
  *   Result is returned as unsigned int, but
@@ -406,24 +412,6 @@ unsigned float_abs(unsigned uf) {
  */
 unsigned float_i2f(int x) {
  
-  
- 
-  unsigned sign = x & 0x80000000;
-  unsigned checker = 0x40000000;
-  int magnitude = 31;
-  unsigned spot = 0;
-  int leftShift;
-  unsigned leftShifted;
-  unsigned twentyThreeBits;
-  unsigned twentyFifthBit;
-  unsigned addOne;
-  unsigned lastSeven;
-  unsigned result;
-  unsigned twentyFourthBit;
-  unsigned exponent;
-
-
-
   /*
     Exploits the bit representation of floating point numbers. First checks two 
     extreme cases (0 and TMIN), determines the sign,
@@ -440,6 +428,21 @@ unsigned float_i2f(int x) {
     them together and adds 1 if rounding up required.
 
    */  
+  
+ 
+  unsigned sign = x & 0x80000000;
+  unsigned checker = 0x40000000;
+  int magnitude = 31;
+  unsigned spot = 0;
+  int leftShift;
+  unsigned leftShifted;
+  unsigned twentyThreeBits;
+  unsigned twentyFifthBit;
+  unsigned addOne;
+  unsigned lastSeven;
+  unsigned result;
+  unsigned twentyFourthBit;
+  unsigned exponent;
 
   // tmin case
   if(x == 0x80000000) 
@@ -447,9 +450,6 @@ unsigned float_i2f(int x) {
   if(!!sign) {
     x = ~x + 1;
    }
-
-
-
 
   //Zero case
   if((x ^ 0x0) == 0x0) return 0x0;
@@ -505,9 +505,9 @@ unsigned float_i2f(int x) {
   if(addOne)
     result = result + 1;
   return result;
- 
-
 }
+
+
 /* 
  * isPositive - return 1 if x > 0, return 0 otherwise 
  *   Example: isPositive(-1) = 0.
@@ -529,6 +529,8 @@ int isPositive(int x) {
   int result = X ^ Y;
   return !result;
 }
+
+
 /*
  * isZero - returns 1 if x == 0, and 0 otherwise 
  *   Examples: isZero(5) = 0, isZero(0) = 1
@@ -544,6 +546,8 @@ int isZero(int x) {
   
   return !x;
 }
+
+
 /* 
  * thirdBits - return word with every third bit (starting from the LSB) set to 1
  *   Legal ops: ! ~ & ^ | + << >>
@@ -568,6 +572,8 @@ int thirdBits(void) {
   result = (result << 8) ^ firstGroup;
   return result;
 }
+
+
 /* 
  * TMax - return maximum two's complement integer 
  *   Legal ops: ! ~ & ^ | + << >>
@@ -588,6 +594,8 @@ int tmax(void) {
 
   return result;
 }
+
+
 /* 
  * tmin - return minimum two's complement integer 
  *   Legal ops: ! ~ & ^ | + << >>
