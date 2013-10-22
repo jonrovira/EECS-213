@@ -193,15 +193,23 @@ int bang(int x) {
  *   Rating: 4
  */
 int bitParity(int x) {
-  /*You got this, Curtis*/
+  /*
+    Exploits shifting and & to get all bytes to far right.
+    Exploits fact that ^ gives:
+    - even number of 0's if both operands have even number of 0's
+    - odd otherwise (both odd, one even one odd)
+
+    Divides bytes and repeates until only operating on single bit,
+    will be 0 if original had odd number of 0's, 1 if original
+    had even number of 0's.
+   */
 
   int ones = 0xFF;
 
   int first = ones & (x >> 24);
   int second = ones & (x >> 16);
   int thirdByte = ones & (x >> 8);
-  //int fourthByte = ones & x;
-
+  
   int evenOdd = first ^ second ^ thirdByte ^ x;  
   
   first = 0xF & (evenOdd >> 4);
@@ -371,6 +379,14 @@ int evenBits(void) {
  *   Rating: 2
  */
 unsigned float_abs(unsigned uf) {
+  
+  /*
+    Exploits the structure of floating points in 32 bit machines.
+    Checks exponent bits and fraction bits. If exponent is all 1's and 
+    some fraction bit is a 1, then result is NaN and the input is returned unchanged.
+    Otherwise, uses & to set the sign bit to 0 and returns the value.
+   */
+
   unsigned exponent = 0x7f800000;
   unsigned frac = 0x007fffff;
   if (((uf & exponent) == exponent) && ((uf & frac) != 0x0)){
@@ -390,6 +406,8 @@ unsigned float_abs(unsigned uf) {
  */
 unsigned float_i2f(int x) {
  
+  
+ 
   unsigned sign = x & 0x80000000;
   unsigned checker = 0x40000000;
   int magnitude = 31;
@@ -404,7 +422,26 @@ unsigned float_i2f(int x) {
   unsigned twentyFourthBit;
   unsigned exponent;
 
-  
+
+
+  /*
+    Exploits the bit representation of floating point numbers. First checks two 
+    extreme cases (0 and TMIN), determines the sign,
+    then uses a loop and & to find the most significant 1,
+    stores the position. 
+    Then uses left shifting to put most significant 1 in the most location (furthest left).
+    Takes the next 23 bits as the fraction, checks the bit immediately after the fraction
+    to see if rounding needs to occur. If that bit is 1, checks for any other 1's in the remaining
+    bits. If one, sets variable to add 1 to total. If all 0s, checks last fraction bit for 
+    rounding: sets to add 1 if it is a 1, does nothing if a 0.
+
+    Utilizes the location of most significant 1 to determine E, calculates exp using this value and
+    127 for the bias ((2^7)-1). Uses shifting to get all of these peices in the correct location, adds
+    them together and adds 1 if rounding up required.
+
+   */  
+
+  // tmin case
   if(x == 0x80000000) 
     return 0xcf000000;
   if(!!sign) {
